@@ -42,7 +42,7 @@
       clustersLayer = L.layerGroup().addTo(map);
 
       map.on('click', (e) => {
-        clearMap(); // Очистка карты перед установкой нового маркера
+        clearMap();
 
         selectedPoint = L.marker([e.latlng.lat, e.latlng.lng], {
           icon: datasetIcons.selected
@@ -50,8 +50,8 @@
         selectedPoint.bindPopup("Выбрано местоположение").openPopup();
       });
 
-      console.log(L.Routing); // Должен вывести объект Routing
-      console.log(L.Routing.GraphHopper); // Проверка доступности GraphHopper
+      console.log(L.Routing);
+      console.log(L.Routing.GraphHopper);
     });
 
     function clearMap() {
@@ -107,12 +107,10 @@
       // Выбираем случайным образом, какая компонента будет максимальной (красная, зеленая или синяя)
       const component = Math.floor(Math.random() * 3); // 0 - красный, 1 - зеленый, 2 - синий
 
-      // Генерируем значения для каждой компоненты
       const r = component === 0 ? Math.floor(Math.random() * 128) + 128 : Math.floor(Math.random() * 128);
       const g = component === 1 ? Math.floor(Math.random() * 128) + 128 : Math.floor(Math.random() * 128);
       const b = component === 2 ? Math.floor(Math.random() * 128) + 128 : Math.floor(Math.random() * 128);
 
-      // Преобразуем значения в HEX-формат
       const toHex = (value) => value.toString(16).padStart(2, '0');
       return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     }
@@ -123,7 +121,7 @@
       routes.forEach((point) => {
         const router = new L.Routing.GraphHopper('7a1d6633-3035-4e02-93d3-7de8ed0b9b9c', {
           urlParameters: {
-            vehicle: 'foot' // Пешие маршруты
+            vehicle: 'foot'
           }
         });
 
@@ -134,11 +132,11 @@
           ],
           routeWhileDragging: true,
           router: router,
-          createMarker: () => null, // Убираем маркеры маршрута
+          createMarker: () => null,
           lineOptions: {
-            styles: [{ color: getRandomColor(), opacity: 0.6, weight: 5 }] // Случайный цвет
+            styles: [{ color: getRandomColor(), opacity: 0.6, weight: 5 }] 
           },
-          show: false // Отключаем всплывающее меню маршрута
+          show: false
         }).addTo(map);
         routeLayers.push(route);
       });
