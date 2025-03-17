@@ -4,30 +4,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МосСпортМаршрут</title>
+  <title>СпортМаршрут</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="\data\logo.svg" type="image/svg">
-  <script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
+  <link rel="icon" href="/data/logo.svg" type="image/svg">
+  <link rel="stylesheet" href="../leaflet/leaflet.css" />
+  <script src="../leaflet/leaflet.js"></script>
+  <link rel="stylesheet" href="../leaflet/leaflet-routing-machine.css" />
+  <script src="../leaflet/leaflet-routing-machine.js"></script>
+  <script src="../leaflet/lrm-graphhopper-1.2.0.min.js"></script>
   <script type="text/javascript">
-    let map, clustersLayer, selectedPoint = null, routeLayer = null;
+    let map, clustersLayer, selectedPoint = null, routeLayers = [];
 
     const datasetIcons = {
-      dataset1: '../data/icon1.png',
-      dataset2: '../data/icon2.png'
+      dataset1: L.icon({
+        iconUrl: '../data/icon1.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      }),
+      dataset2: L.icon({
+        iconUrl: '../data/icon2.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      }),
+      selected: L.icon({
+        iconUrl: '../data/icon_s.png',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      })
     };
 
-    DG.then(() => {
-      map = DG.map('map', { center: [55.755825, 37.617630], zoom: 12 });
-      clustersLayer = DG.layerGroup().addTo(map);
+    document.addEventListener('DOMContentLoaded', () => {
+      map = L.map('map').setView([55.755825, 37.617630], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      clustersLayer = L.layerGroup().addTo(map);
 
       map.on('click', (e) => {
-        if (selectedPoint) {
-          map.removeLayer(selectedPoint);
-        }
-        selectedPoint = DG.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+        clearMap(); // Очистка карты перед установкой нового маркера
+
+        selectedPoint = L.marker([e.latlng.lat, e.latlng.lng], {
+          icon: datasetIcons.selected
+        }).addTo(map);
         selectedPoint.bindPopup("Выбрано местоположение").openPopup();
       });
+
+      console.log(L.Routing); // Должен вывести объект Routing
+      console.log(L.Routing.GraphHopper); // Проверка доступности GraphHopper
     });
+
+    function clearMap() {
+      clustersLayer.clearLayers();
+      routeLayers.forEach(layer => map.removeControl(layer));
+      routeLayers = [];
+      if (selectedPoint) {
+        map.removeLayer(selectedPoint);
+        selectedPoint = null;
+      }
+    }
 
     async function findNearestPoints(lat, lng) {
       try {
@@ -39,7 +74,8 @@
         console.log("Полученные данные:", data);
 
         if (data.success) {
-          plotRoute(data.dataset1, data.dataset2);
+          plotPoints(data.dataset1, data.dataset2);
+          plotRoutesToPoints(lat, lng, data.dataset1, data.dataset2);
         } else {
           alert('Не удалось найти ближайшие точки.');
         }
@@ -49,34 +85,62 @@
       }
     }
 
-    function plotRoute(dataset1, dataset2) {
-      clustersLayer.clearLayers();
-
-      // Отображаем выбранную точку (если она есть)
+    function plotPoints(dataset1, dataset2) {
       if (selectedPoint) {
-        DG.marker(selectedPoint.getLatLng()).addTo(clustersLayer).bindPopup("Выбранная точка").openPopup();
+        selectedPoint.addTo(clustersLayer).bindPopup("Выбранная точка");
       }
 
-      // Отображаем объекты из dataset1
       dataset1.forEach(point => {
-        DG.marker([point.lat_set, point.long_set], {
-          icon: DG.icon({
-            iconUrl: datasetIcons.dataset1, // Путь к иконке
-            iconSize: [30, 30], // Размер иконки (ширина, высота)
-            iconAnchor: [15, 15] // Смещение точки привязки иконки (центр иконки)
-          })
-        }).addTo(clustersLayer).bindPopup(point.name_set);
+        L.marker([point.lat_set, point.long_set], {
+          icon: datasetIcons.dataset1
+        }).addTo(clustersLayer).bindPopup(`${point.name_set}, ${point.adm_area_set}, ${point.address_set}`);
       });
 
-      // Отображаем объекты из dataset2
       dataset2.forEach(point => {
-        DG.marker([point.lat_set, point.long_set], {
-          icon: DG.icon({
-            iconUrl: datasetIcons.dataset2, // Путь к иконке
-            iconSize: [30, 30], // Размер иконки (ширина, высота)
-            iconAnchor: [15, 15] // Смещение точки привязки иконки (центр иконки)
-          })
-        }).addTo(clustersLayer).bindPopup(point.name_set);
+        L.marker([point.lat_set, point.long_set], {
+          icon: datasetIcons.dataset2
+        }).addTo(clustersLayer).bindPopup(`${point.name_set}, ${point.adm_area_set}, ${point.address_set}`);
+      });
+    }
+
+    function getRandomColor() {
+      // Выбираем случайным образом, какая компонента будет максимальной (красная, зеленая или синяя)
+      const component = Math.floor(Math.random() * 3); // 0 - красный, 1 - зеленый, 2 - синий
+
+      // Генерируем значения для каждой компоненты
+      const r = component === 0 ? Math.floor(Math.random() * 128) + 128 : Math.floor(Math.random() * 128);
+      const g = component === 1 ? Math.floor(Math.random() * 128) + 128 : Math.floor(Math.random() * 128);
+      const b = component === 2 ? Math.floor(Math.random() * 128) + 128 : Math.floor(Math.random() * 128);
+
+      // Преобразуем значения в HEX-формат
+      const toHex = (value) => value.toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    function plotRoutesToPoints(startLat, startLng, dataset1, dataset2) {
+      const routes = [...dataset1.slice(0, 2), ...dataset2.slice(0, 1)];
+
+      routes.forEach((point) => {
+        const router = new L.Routing.GraphHopper('7a1d6633-3035-4e02-93d3-7de8ed0b9b9c', {
+          urlParameters: {
+            vehicle: 'foot' // Пешие маршруты
+          }
+        });
+
+        const route = L.Routing.control({
+          waypoints: [
+            L.latLng(startLat, startLng),
+            L.latLng(point.lat_set, point.long_set)
+          ],
+          routeWhileDragging: true,
+          router: router,
+          createMarker: () => null, // Убираем маркеры маршрута
+          lineOptions: {
+            styles: [{ color: getRandomColor(), opacity: 0.6, weight: 5 }] // Случайный цвет
+          },
+          show: false // Отключаем всплывающее меню маршрута
+        }).addTo(map);
+        routeLayers.push(route);
       });
     }
 
@@ -89,15 +153,15 @@
         alert("Выберите точку на карте.");
       }
     }
-
   </script>
+
 </head>
 
 <body>
   <header>
     <div class="header-left">
-      <img src="\data\logo.svg" alt="Логотип" class="logo">
-      <span class="project-title">МосСпортМаршрут</span>
+      <img src="/data/logo.svg" alt="Логотип" class="logo">
+      <span class="project-title">СпортМаршрут</span>
     </div>
     <nav class="navbar">
       <ul class="nav-links">
@@ -113,7 +177,6 @@
     <div class="control-panel">
       <h2>Пульт управления</h2>
       <form onsubmit="handleFormSubmit(event)">
-
         <button type="submit">Подтвердить</button>
         <div class="instructions">
           <p>Для использования приложения выполните следующие шаги:</p>

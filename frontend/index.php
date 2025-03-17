@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>МосСпортМаршрут</title>
+    <title>СпортМаршрут</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="\data\logo.svg" type="image/svg">
 </head>
@@ -13,7 +13,7 @@
     <header>
         <div class="header-left">
             <img src="\data\logo.svg" alt="Логотип" class="logo">
-            <span class="project-title">МосСпортМаршрут</span>
+            <span class="project-title">СпортМаршрут</span>
         </div>
         <nav class="navbar">
             <ul class="nav-links">
