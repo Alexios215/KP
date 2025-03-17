@@ -9,32 +9,39 @@
   <link rel="icon" href="\data\logo.svg" type="image/svg">
   <script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
   <script type="text/javascript">
-    let map, clustersLayer;
-
-    DG.then(() => {
-      map = DG.map('map', { center: [55.755825, 37.617630], zoom: 12 });
-      clustersLayer = DG.layerGroup().addTo(map);
-    });
+    let map, clustersLayer, selectedPoint = null, routeLayer = null;
 
     const datasetIcons = {
       dataset1: '../data/icon1.png',
       dataset2: '../data/icon2.png'
     };
 
-    async function fetchData(url) {
-      try {
-        const response = await fetch(url);
+    DG.then(() => {
+      map = DG.map('map', { center: [55.755825, 37.617630], zoom: 12 });
+      clustersLayer = DG.layerGroup().addTo(map);
 
+      map.on('click', (e) => {
+        if (selectedPoint) {
+          map.removeLayer(selectedPoint);
+        }
+        selectedPoint = DG.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+        selectedPoint.bindPopup("Выбрано местоположение").openPopup();
+      });
+    });
+
+    async function findNearestPoints(lat, lng) {
+      try {
+        const response = await fetch(`../backend/find_nearest.php?lat=${lat}&lng=${lng}`);
         if (!response.ok) {
           throw new Error(`Ошибка сети: ${response.statusText}`);
         }
-
         const data = await response.json();
+        console.log("Полученные данные:", data);
 
         if (data.success) {
-          processClusters(data.clusters);
+          plotRoute(data.dataset1, data.dataset2);
         } else {
-          alert(data.error || 'Ошибка обработки данных');
+          alert('Не удалось найти ближайшие точки.');
         }
       } catch (error) {
         console.error('Ошибка запроса:', error);
@@ -42,11 +49,47 @@
       }
     }
 
+    function plotRoute(dataset1, dataset2) {
+      clustersLayer.clearLayers();
+
+      // Отображаем выбранную точку (если она есть)
+      if (selectedPoint) {
+        DG.marker(selectedPoint.getLatLng()).addTo(clustersLayer).bindPopup("Выбранная точка").openPopup();
+      }
+
+      // Отображаем объекты из dataset1
+      dataset1.forEach(point => {
+        DG.marker([point.lat_set, point.long_set], {
+          icon: DG.icon({
+            iconUrl: datasetIcons.dataset1, // Путь к иконке
+            iconSize: [30, 30], // Размер иконки (ширина, высота)
+            iconAnchor: [15, 15] // Смещение точки привязки иконки (центр иконки)
+          })
+        }).addTo(clustersLayer).bindPopup(point.name_set);
+      });
+
+      // Отображаем объекты из dataset2
+      dataset2.forEach(point => {
+        DG.marker([point.lat_set, point.long_set], {
+          icon: DG.icon({
+            iconUrl: datasetIcons.dataset2, // Путь к иконке
+            iconSize: [30, 30], // Размер иконки (ширина, высота)
+            iconAnchor: [15, 15] // Смещение точки привязки иконки (центр иконки)
+          })
+        }).addTo(clustersLayer).bindPopup(point.name_set);
+      });
+    }
+
     function handleFormSubmit(event) {
       event.preventDefault();
-      //Что то
-      fetchData(url);
+      if (selectedPoint) {
+        const { lat, lng } = selectedPoint.getLatLng();
+        findNearestPoints(lat, lng);
+      } else {
+        alert("Выберите точку на карте.");
+      }
     }
+
   </script>
 </head>
 
@@ -75,10 +118,14 @@
         <div class="instructions">
           <p>Для использования приложения выполните следующие шаги:</p>
           <ul>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
+            <li>Кликните в любое место на карте, чтобы установить маркер. Эта точка будет использоваться для поиска
+              ближайших спортивных объектов.</li>
+            <li>Нажмите кнопку "Подтвердить", чтобы найти 2 ближайших тренажерных городка и 1 ближайший
+              Спортивный объект. Маршрут до этих точек автоматически отобразится на карте.</li>
+            <li>После поиска вы увидите найденные точки на карте, а также маршруты, соединяющие их с выбранной вами
+              точкой.</li>
+            <li>Если вы зарегистрируетесь и войдете в систему, то сможете сохранять историю своих запросов и
+              просматривать её позже.</li>
           </ul>
         </div>
       </form>
