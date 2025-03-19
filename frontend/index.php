@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>СпортМаршрут</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="\data\logo.svg" type="image/svg">
+    <link rel="icon" href="/data/logo.svg" type="image/svg">
 </head>
 
 <body>

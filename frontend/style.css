@@ -211,7 +211,7 @@ button {
     font-size: 16px;
     font-weight: bold;
     color: #fff;
-    background-color: #618D95;
+    background-color: #3436ca;
     border: none;
     border-radius: 8px;
     text-align: center;
@@ -225,7 +225,7 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-    background-color: #1F5761;
+    background-color: #1100fd;
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
