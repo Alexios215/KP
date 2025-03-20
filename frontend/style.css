@@ -211,7 +211,7 @@ button {
     font-size: 16px;
     font-weight: bold;
     color: #fff;
-    background-color: #3436ca;
+    background-color: #6464db;
     border: none;
     border-radius: 8px;
     text-align: center;
@@ -225,7 +225,7 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-    background-color: #1100fd;
+    background-color: #5757be;
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -243,6 +243,56 @@ button:hover:not(:disabled) {
 
 .instructions li {
     margin-bottom: 5px;
+}
+
+.user-info {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-info h2 {
+    margin-top: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.history-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.history-list li {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.history-list li span {
+    display: block;
+    font-size: 14px;
+    color: #555;
+}
+
+.message,
+.error {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.message {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 @media (max-width: 768px) {

@@ -1,3 +1,22 @@
+<?php
+session_start();
+require '../backend/db.php';
+
+if (isset($_SESSION['user_id'])) {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lat']) && isset($_POST['lng'])) {
+    $lat = $_POST['lat'];
+    $lng = $_POST['lng'];
+
+    $stmt = $pdo->prepare("INSERT INTO history (user_id, lat_set, long_set) VALUES (:user_id, :lat_set, :long_set)");
+    $stmt->execute([
+      'user_id' => $_SESSION['user_id'],
+      'lat_set' => $lat,
+      'long_set' => $lng
+    ]);
+  }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -49,6 +68,19 @@
         }).addTo(map);
         selectedPoint.bindPopup("Выбрано местоположение").openPopup();
       });
+
+      // Проверка GET-параметров
+      const urlParams = new URLSearchParams(window.location.search);
+      const lat = urlParams.get('lat');
+      const lng = urlParams.get('lng');
+
+      // Если параметры переданы, вызываем findNearestPoints
+      if (lat && lng) {
+        L.marker([lat, lng], {
+          icon: datasetIcons.selected
+        }).addTo(map);
+        findNearestPoints(parseFloat(lat), parseFloat(lng));
+      }
 
       console.log(L.Routing);
       console.log(L.Routing.GraphHopper);
@@ -134,7 +166,7 @@
           router: router,
           createMarker: () => null,
           lineOptions: {
-            styles: [{ color: getRandomColor(), opacity: 0.6, weight: 5 }] 
+            styles: [{ color: getRandomColor(), opacity: 0.6, weight: 5 }]
           },
           show: false
         }).addTo(map);
@@ -146,7 +178,39 @@
       event.preventDefault();
       if (selectedPoint) {
         const { lat, lng } = selectedPoint.getLatLng();
+
+        // Вызов функции для поиска ближайших точек
         findNearestPoints(lat, lng);
+
+        // Если пользователь авторизован, отправляем данные на сервер для сохранения истории
+        <?php if (isset($_SESSION['user_id'])): ?>
+          fetch('../backend/save_history.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              lat: lat,
+              lng: lng
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Ошибка при сохранении истории');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                console.log('История успешно сохранена');
+              } else {
+                console.error('Ошибка при сохранении истории:', data.message);
+              }
+            })
+            .catch(error => {
+              console.error('Ошибка сети:', error);
+            });
+        <?php endif; ?>
       } else {
         alert("Выберите точку на карте.");
       }
@@ -165,7 +229,11 @@
       <ul class="nav-links">
         <li><a href="index.php">Главная</a></li>
         <li><a href="map.php">Карта</a></li>
-        <li><a href="auth.php">Вход</a></li>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <li class="dropdown">
+            <a href="auth.php" class="dropdown-toggle"><?= htmlspecialchars($_SESSION['username']) ?></a>
+          </li>
+        <?php endif; ?>
       </ul>
     </nav>
   </header>

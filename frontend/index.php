@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -19,7 +23,11 @@
             <ul class="nav-links">
                 <li><a href="index.php">Главная</a></li>
                 <li><a href="map.php">Карта</a></li>
-                <li><a href="auth.php">Вход</a></li>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li class="dropdown">
+                        <a href="auth.php" class="dropdown-toggle"><?= htmlspecialchars($_SESSION['username']) ?></a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </nav>
     </header>
