@@ -178,8 +178,6 @@ if (isset($_SESSION['user_id'])) {
       event.preventDefault();
       if (selectedPoint) {
         const { lat, lng } = selectedPoint.getLatLng();
-
-        // Вызов функции для поиска ближайших точек
         findNearestPoints(lat, lng);
 
         // Если пользователь авторизован, отправляем данные на сервер для сохранения истории
