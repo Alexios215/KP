@@ -16,18 +16,16 @@ session_start();
 <body>
     <header>
         <div class="header-left">
-            <img src="\data\logo.svg" alt="Логотип" class="logo">
+            <img src="/data/logo.svg" alt="Логотип" class="logo">
             <span class="project-title">СпортМаршрут</span>
         </div>
         <nav class="navbar">
             <ul class="nav-links">
                 <li><a href="index.php">Главная</a></li>
                 <li><a href="map.php">Карта</a></li>
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <li class="dropdown">
-                        <a href="auth.php" class="dropdown-toggle"><?= htmlspecialchars($_SESSION['username']) ?></a>
-                    </li>
-                <?php endif; ?>
+                <li><a
+                        href="auth.php"><?= isset($_SESSION['user_id']) ? htmlspecialchars($_SESSION['username']) : 'Войти' ?></a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -40,20 +38,20 @@ session_start();
             </p>
             <section class="image-section">
                 <div class="image-link">
-                    <img src="\data\img1.jpg" alt="Изображение 1">
+                    <img src="/data/img1.jpg" alt="Изображение 1">
                 </div>
                 <div class="image-link">
-                    <img src="\data\img2.jpg" alt="Изображение 2">
+                    <img src="/data/img2.jpg" alt="Изображение 2">
                 </div>
                 <div class="image-link">
-                    <img src="\data\img3.jpg" alt="Изображение 3">
+                    <img src="/data/img3.jpg" alt="Изображение 3">
                 </div>
             </section>
             <a href="map.php" class="button">Перейти к карте</a>
         </section>
 
         <section>
-            <div class="description left">
+            <div class="description">
                 <h2>Зачем нужно приложение для поиска спортивных объектов?</h2>
                 <p>
                     В большом городе, таком как Москва, множество спортивных объектов, но не все они легко доступны для
@@ -61,7 +59,7 @@ session_start();
                 </p>
             </div>
 
-            <div class="description right">
+            <div class="description">
                 <h2>Зачем использовать открытые данные?</h2>
                 <p>
                     Открытые данные обеспечивают прозрачность и актуальность информации. Использование таких данных
@@ -70,7 +68,7 @@ session_start();
                 </p>
             </div>
 
-            <div class="description left">
+            <div class="description">
                 <h2>Зачем нужна функция построения маршрутов?</h2>
                 <p>
                     Построение маршрутов помогает не только найти ближайший объект, но и добраться до него
@@ -78,7 +76,7 @@ session_start();
                 </p>
             </div>
 
-            <div class="description right">
+            <div class="description">
                 <h2>Зачем нужна история запросов?</h2>
                 <p>
                     История запросов позволяет отслеживать свои предыдущие поиски, что удобно для

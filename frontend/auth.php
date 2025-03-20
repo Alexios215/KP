@@ -92,7 +92,6 @@ if (isset($_POST['logout'])) {
     header('Location: auth.php');
     exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -109,134 +108,130 @@ if (isset($_POST['logout'])) {
 <body>
     <header>
         <div class="header-left">
-            <img src="\data\logo.svg" alt="Логотип" class="logo">
+            <img src="/data/logo.svg" alt="Логотип" class="logo">
             <span class="project-title">СпортМаршрут</span>
         </div>
         <nav class="navbar">
             <ul class="nav-links">
                 <li><a href="index.php">Главная</a></li>
                 <li><a href="map.php">Карта</a></li>
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <li class="dropdown">
-                        <a href="auth.php" class="dropdown-toggle"><?= htmlspecialchars($_SESSION['username']) ?></a>
-                    </li>
-                <?php endif; ?>
+                <li><a
+                        href="auth.php"><?= isset($_SESSION['user_id']) ? htmlspecialchars($_SESSION['username']) : 'Войти' ?></a>
+                </li>
             </ul>
         </nav>
     </header>
     <main>
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <h2>Ваш аккаунт</h2>
-        <?php else: ?>
-            <h2>Авторизация и Регистрация</h2>
-        <?php endif; ?>
+        <div class="auth-container">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <h2>Ваш аккаунт</h2>
+                <div class="user-info">
+                    <h3>Изменение пароля</h3>
+                    <form method="POST" action="auth.php">
+                        <label for="current_password">Текущий пароль:</label>
+                        <input type="password" id="current_password" name="current_password" required>
 
+                        <label for="new_password">Новый пароль:</label>
+                        <input type="password" id="new_password" name="new_password" required>
 
-        <?php if ($error): ?>
-            <p class="error"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
+                        <label for="confirm_new_password">Подтвердите новый пароль:</label>
+                        <input type="password" id="confirm_new_password" name="confirm_new_password" required>
 
-        <?php if ($success): ?>
-            <p class="success"><?= $success ?></p>
-        <?php endif; ?>
+                        <button type="submit" name="change_password" class="button">Изменить пароль</button>
+                    </form>
 
-        <?php if (!isset($_SESSION['user_id'])): ?>
-            <form id="login-form" method="POST" action="auth.php">
-                <h3>Вход</h3>
+                    <h3>История запросов</h3>
+                    <?php
+                    $stmt = $pdo->prepare("SELECT lat_set, long_set, created_at FROM history WHERE user_id = :user_id ORDER BY created_at DESC");
+                    $stmt->execute(['user_id' => $_SESSION['user_id']]);
+                    $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
 
-                <label for="username">Имя пользователя:</label>
-                <input type="text" id="username" name="username" required>
+                    <?php if (empty($history)): ?>
+                        <p>История пуста.</p>
+                    <?php else: ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Широта</th>
+                                    <th>Долгота</th>
+                                    <th>Дата и время</th>
+                                    <th>Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($history as $entry): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($entry['lat_set']) ?></td>
+                                        <td><?= htmlspecialchars($entry['long_set']) ?></td>
+                                        <td><?= htmlspecialchars($entry['created_at']) ?></td>
+                                        <td>
+                                            <form method="GET" action="map.php">
+                                                <input type="hidden" name="lat" value="<?= htmlspecialchars($entry['lat_set']) ?>">
+                                                <input type="hidden" name="lng" value="<?= htmlspecialchars($entry['long_set']) ?>">
+                                                <button type="submit" class="button small">Перейти</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
 
-                <label for="password">Пароль:</label>
-                <input type="password" id="password" name="password" required>
-
-                <button type="submit" name="login">Войти</button>
-                <p>Нет аккаунта? <a href="#register-form" onclick="showRegisterForm()">Зарегистрироваться</a></p>
-            </form>
-
-            <form id="register-form" method="POST" action="auth.php" style="display:none;">
-                <h3>Регистрация</h3>
-
-                <label for="register-username">Имя пользователя:</label>
-                <input type="text" id="register-username" name="username" required>
-
-                <label for="register-password">Пароль:</label>
-                <input type="password" id="register-password" name="password" required>
-
-                <label for="register-confirm-password">Подтвердите пароль:</label>
-                <input type="password" id="register-confirm-password" name="confirm_password" required>
-
-                <button type="submit" name="register">Зарегистрироваться</button>
-                <p>Уже есть аккаунт? <a href="#login-form" onclick="showLoginForm()">Войти</a></p>
-            </form>
-        <?php else: ?>
-            <h3>Изменение пароля</h3>
-            <form method="POST" action="auth.php">
-                <label for="current_password">Текущий пароль:</label>
-                <input type="password" id="current_password" name="current_password" required>
-
-                <label for="new_password">Новый пароль:</label>
-                <input type="password" id="new_password" name="new_password" required>
-
-                <label for="confirm_new_password">Подтвердите новый пароль:</label>
-                <input type="password" id="confirm_new_password" name="confirm_new_password" required>
-
-                <button type="submit" name="change_password">Изменить пароль</button>
-            </form>
-
-            <h3>История запросов</h3>
-            <?php
-            $stmt = $pdo->prepare("SELECT lat_set, long_set, created_at FROM history WHERE user_id = :user_id ORDER BY created_at DESC");
-            $stmt->execute(['user_id' => $_SESSION['user_id']]);
-            $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            ?>
-
-            <?php if (empty($history)): ?>
-                <p>История пуста.</p>
+                    <form method="POST" action="auth.php">
+                        <button type="submit" name="logout" class="button">Выйти</button>
+                    </form>
+                </div>
             <?php else: ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Широта</th>
-                            <th>Долгота</th>
-                            <th>Дата и время</th>
-                            <th>Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($history as $entry): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($entry['lat_set']) ?></td>
-                                <td><?= htmlspecialchars($entry['long_set']) ?></td>
-                                <td><?= htmlspecialchars($entry['created_at']) ?></td>
-                                <td>
-                                    <form method="GET" action="map.php">
-                                        <input type="hidden" name="lat" value="<?= htmlspecialchars($entry['lat_set']) ?>">
-                                        <input type="hidden" name="lng" value="<?= htmlspecialchars($entry['long_set']) ?>">
-                                        <button type="submit">Перейти</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <h2>Авторизация и регистрация</h2>
+                <?php if ($error): ?>
+                    <p class="error"><?= htmlspecialchars($error) ?></p>
+                <?php endif; ?>
+
+                <?php if ($success): ?>
+                    <p class="success"><?= $success ?></p>
+                <?php endif; ?>
+
+                <div class="auth-forms">
+                    <form id="login-form" method="POST" action="auth.php">
+                        <h3>Вход</h3>
+                        <label for="username">Имя пользователя:</label>
+                        <input type="text" id="username" name="username" required>
+
+                        <label for="password">Пароль:</label>
+                        <input type="password" id="password" name="password" required>
+
+                        <button type="submit" name="login" class="button">Войти</button>
+                        <p>Нет аккаунта? <a href="#register-form" onclick="showRegisterForm()">Зарегистрироваться</a></p>
+                    </form>
+
+                    <form id="register-form" method="POST" action="auth.php" style="display:none;">
+                        <h3>Регистрация</h3>
+                        <label for="register-username">Имя пользователя:</label>
+                        <input type="text" id="register-username" name="username" required>
+
+                        <label for="register-password">Пароль:</label>
+                        <input type="password" id="register-password" name="password" required>
+
+                        <label for="register-confirm-password">Подтвердите пароль:</label>
+                        <input type="password" id="register-confirm-password" name="confirm_password" required>
+
+                        <button type="submit" name="register" class="button">Зарегистрироваться</button>
+                        <p>Уже есть аккаунт? <a href="#login-form" onclick="showLoginForm()">Войти</a></p>
+                    </form>
+                </div>
             <?php endif; ?>
-
-            <form method="POST" action="auth.php">
-                <button type="submit" name="logout">Выйти</button>
-            </form>
-        <?php endif; ?>
-
+        </div>
     </main>
     <script>
         function showRegisterForm() {
-            document.querySelector('form#register-form').style.display = 'block';
-            document.querySelector('form#login-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
         }
 
         function showLoginForm() {
-            document.querySelector('form#login-form').style.display = 'block';
-            document.querySelector('form#register-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
         }
     </script>
     <footer>

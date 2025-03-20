@@ -214,7 +214,6 @@ if (isset($_SESSION['user_id'])) {
       }
     }
   </script>
-
 </head>
 
 <body>
@@ -227,42 +226,42 @@ if (isset($_SESSION['user_id'])) {
       <ul class="nav-links">
         <li><a href="index.php">Главная</a></li>
         <li><a href="map.php">Карта</a></li>
-        <?php if (isset($_SESSION['user_id'])): ?>
-          <li class="dropdown">
-            <a href="auth.php" class="dropdown-toggle"><?= htmlspecialchars($_SESSION['username']) ?></a>
-          </li>
-        <?php endif; ?>
+        <li><a
+            href="auth.php"><?= isset($_SESSION['user_id']) ? htmlspecialchars($_SESSION['username']) : 'Войти' ?></a>
+        </li>
       </ul>
     </nav>
-  </header>
+    </header>
 
-  <div class="content-container">
-    <div id="map"></div>
-    <div class="control-panel">
-      <h2>Пульт управления</h2>
-      <form onsubmit="handleFormSubmit(event)">
-        <button type="submit">Подтвердить</button>
-        <div class="instructions">
-          <p>Для использования приложения выполните следующие шаги:</p>
-          <ul>
-            <li>Кликните в любое место на карте, чтобы установить маркер. Эта точка будет использоваться для поиска
-              ближайших спортивных объектов.</li>
-            <li>Нажмите кнопку "Подтвердить", чтобы найти 2 ближайших тренажерных городка и 1 ближайший
-              Спортивный объект. Маршрут до этих точек автоматически отобразится на карте.</li>
-            <li>После поиска вы увидите найденные точки на карте, а также маршруты, соединяющие их с выбранной вами
-              точкой.</li>
-            <li>Если вы зарегистрируетесь и войдете в систему, то сможете сохранять историю своих запросов и
-              просматривать её позже.</li>
-          </ul>
+    <main>
+      <div class="content-container">
+        <div id="map"></div>
+        <div class="control-panel">
+          <h2>Пульт управления</h2>
+          <form onsubmit="handleFormSubmit(event)">
+            <button type="submit" class="button">Подтвердить</button>
+            <div class="instructions">
+              <p>Для использования приложения выполните следующие шаги:</p>
+              <ul>
+                <li>Кликните в любое место на карте, чтобы установить маркер. Эта точка будет использоваться для поиска
+                  ближайших спортивных объектов.</li>
+                <li>Нажмите кнопку "Подтвердить", чтобы найти 2 ближайших тренажерных городка и 1 ближайший спортивный
+                  объект. Маршрут до этих точек автоматически отобразится на карте.</li>
+                <li>После поиска вы увидите найденные точки на карте, а также маршруты, соединяющие их с выбранной вами
+                  точкой.</li>
+                <li>Если вы зарегистрируетесь и войдете в систему, то сможете сохранять историю своих запросов и
+                  просматривать её позже.</li>
+              </ul>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
-  </div>
+      </div>
+    </main>
 
-  <footer>
-    <span>Проект использует открытые данные:</span>
-    <a href="https://data.mos.ru" target="_blank">Портал открытых данных Правительства Москвы</a>
-  </footer>
+    <footer>
+      <span>Проект использует открытые данные:</span>
+      <a href="https://data.mos.ru" target="_blank">Портал открытых данных Правительства Москвы</a>
+    </footer>
 </body>
 
 </html>
