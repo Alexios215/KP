@@ -36,10 +36,13 @@ a:hover {
 header {
     background-color: #FFFFFF;
     box-shadow: var(--box-shadow);
-    padding: 1rem 2rem;
+    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .header-left {
@@ -79,10 +82,11 @@ header {
 
 main {
     flex: 1;
-    padding: 2rem;
+    padding: 1rem;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
 }
 
 h1,
@@ -93,12 +97,12 @@ h3 {
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
 }
 
 h2 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 600;
 }
 
@@ -252,11 +256,13 @@ footer span {
     color: var(--light-text-color);
 }
 
+/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
     header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+        padding: 1rem;
     }
 
     .navbar ul {
@@ -264,8 +270,43 @@ footer span {
         gap: 0.5rem;
     }
 
+    .navbar a {
+        font-size: 0.9rem;
+    }
+
+    main {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .button {
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .image-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .description {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
     .content-container {
-        flex-direction: column;
+        margin-top: 1rem;
     }
 
     #map {
@@ -273,15 +314,66 @@ footer span {
     }
 
     .control-panel {
-        width: 100%;
+        padding: 1rem;
     }
 
-    .image-section {
-        grid-template-columns: 1fr;
+    .instructions ul {
+        padding-left: 1rem;
     }
 
-    .description.left,
-    .description.right {
-        text-align: left;
+    table {
+        font-size: 0.9rem;
+    }
+
+    th,
+    td {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-title {
+        font-size: 1.25rem;
+    }
+
+    .logo {
+        height: 30px;
+    }
+
+    .navbar a {
+        font-size: 0.8rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+    }
+
+    .instructions {
+        font-size: 0.8rem;
+    }
+
+    table {
+        font-size: 0.8rem;
+    }
+
+    th,
+    td {
+        padding: 0.4rem;
     }
 }
