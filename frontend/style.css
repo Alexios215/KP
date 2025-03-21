@@ -130,6 +130,7 @@ p {
 
 .button:hover {
     background-color: var(--secondary-color);
+    color: #FFFFFF;
     transform: translateY(-2px);
 }
 
