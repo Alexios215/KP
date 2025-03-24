@@ -226,9 +226,7 @@ if (isset($_SESSION['user_id'])) {
       <ul class="nav-links">
         <li><a href="index.php">Главная</a></li>
         <li><a href="map.php">Карта</a></li>
-        <li><a
-            href="auth.php"><?= isset($_SESSION['user_id']) ? htmlspecialchars($_SESSION['username']) : 'Войти' ?></a>
-        </li>
+        <li><a href="auth.php"><?= isset($_SESSION['user_id']) ? 'Аккаунт' : 'Войти' ?></a></li>
       </ul>
     </nav>
     </header>

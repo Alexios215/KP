@@ -115,9 +115,7 @@ if (isset($_POST['logout'])) {
             <ul class="nav-links">
                 <li><a href="index.php">Главная</a></li>
                 <li><a href="map.php">Карта</a></li>
-                <li><a
-                        href="auth.php"><?= isset($_SESSION['user_id']) ? htmlspecialchars($_SESSION['username']) : 'Войти' ?></a>
-                </li>
+                <li><a href="auth.php"><?= isset($_SESSION['user_id']) ? 'Аккаунт' : 'Войти' ?></a></li>
             </ul>
         </nav>
     </header>
@@ -153,8 +151,6 @@ if (isset($_POST['logout'])) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Широта</th>
-                                    <th>Долгота</th>
                                     <th>Дата и время</th>
                                     <th>Действие</th>
                                 </tr>
@@ -162,9 +158,7 @@ if (isset($_POST['logout'])) {
                             <tbody>
                                 <?php foreach ($history as $entry): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($entry['lat_set']) ?></td>
-                                        <td><?= htmlspecialchars($entry['long_set']) ?></td>
-                                        <td><?= htmlspecialchars($entry['created_at']) ?></td>
+                                        <td><?= (new DateTime($entry['created_at']))->format('d.m.Y H:i:s') ?></td>
                                         <td>
                                             <form method="GET" action="map.php">
                                                 <input type="hidden" name="lat" value="<?= htmlspecialchars($entry['lat_set']) ?>">
